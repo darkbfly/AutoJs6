@@ -785,6 +785,10 @@ pluginManagement {
     }
 
     repositories {
+        // ponytail: prefer Aliyun first — direct Google/MavenCentral TLS often drops mid-JAR download on this network
+        maven("https://maven.aliyun.com/repository/gradle-plugin")
+        maven("https://maven.aliyun.com/repository/google")
+        maven("https://maven.aliyun.com/repository/public")
         gradlePluginPortal()
         mavenCentral()
         google()
@@ -792,6 +796,9 @@ pluginManagement {
 
     buildscript {
         repositories {
+            maven("https://maven.aliyun.com/repository/google")
+            maven("https://maven.aliyun.com/repository/public")
+            maven("https://maven.aliyun.com/repository/central")
             mavenCentral()
             google()
         }

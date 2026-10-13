@@ -40,6 +40,7 @@ desktop.ini
 
 /local.properties
 /sign.properties
+/.m2-jitpack/
 /*dependecies_tree.txt
 
 **/assets-app/declarations/
