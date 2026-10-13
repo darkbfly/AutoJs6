@@ -60,7 +60,8 @@ import java.util.Objects;
  * Modified by SuperMonster003 as of Jan 20, 2026.
  */
 @SuppressWarnings({"unused", "CodeBlock2Expr"})
-public class CircularMenu implements LayoutInspector.CaptureAvailableListener {
+public class CircularMenu implements LayoutInspector.CaptureAvailableListener,
+        LayoutInspector.CaptureFailedListener {
 
     public record StateChangeEvent(int currentState, int previousState) {
         /* Empty record body. */
@@ -129,6 +130,7 @@ public class CircularMenu implements LayoutInspector.CaptureAvailableListener {
         };
         mRecorder.addOnStateChangedListener(mRecorderStateListener);
         AutoJs.getInstance().getLayoutInspector().addCaptureAvailableListener(this);
+        AutoJs.getInstance().getLayoutInspector().addCaptureFailedListener(this);
         mA11yTool = new AccessibilityTool(mContext);
         mPointerLocationTool = new PointerLocationTool(mContext);
         mGlobalKeyObserver = GlobalKeyObserver.getSingleton(mContext.getApplicationContext());
@@ -417,15 +419,32 @@ public class CircularMenu implements LayoutInspector.CaptureAvailableListener {
             mLayoutInspectDialog.dismiss();
             mLayoutInspectDialog = null;
         }
-        if (!mA11yTool.isRunning()) {
+        boolean useDisguisedPlugin = Pref.INSTANCE.isLayoutNodeSchemeDisguisedPlugin();
+        if (!useDisguisedPlugin && !mA11yTool.isRunning()) {
             if (!mA11yTool.startService(false)) {
                 ViewUtils.showToast(mContext, mContext.getString(R.string.error_no_accessibility_permission_to_capture));
                 mA11yTool.launchSettings();
             }
         } else {
-            mCaptureDeferred.promise().then(capture -> {
-                mActionViewIcon.post(() -> FloatyService.addWindow(windowCreator.call(capture)));
-            });
+            if (useDisguisedPlugin) {
+                mCaptureDeferred = new DeferredObject<>();
+            }
+            mCaptureDeferred.promise()
+                    .done(capture -> {
+                        mActionViewIcon.post(() -> FloatyService.addWindow(windowCreator.call(capture)));
+                    })
+                    .fail(ignored -> {
+                        String err = AutoJs.getInstance().getLayoutInspector().getLastCaptureError();
+                        if (err == null || err.isEmpty()) {
+                            err = mContext.getString(R.string.error_disguised_a11y_plugin_capture_failed);
+                        }
+                        final String message = err;
+                        mActionViewIcon.post(() -> ViewUtils.showToast(mContext, message));
+                    });
+            if (useDisguisedPlugin && !AutoJs.getInstance().getLayoutInspector().captureCurrentWindow()) {
+                // Sync failure already rejected via CaptureFailedListener; fail() shows toast.
+                return;
+            }
         }
     }
 
@@ -512,6 +531,16 @@ public class CircularMenu implements LayoutInspector.CaptureAvailableListener {
         }
     }
 
+    @Override
+    public void onCaptureFailed(@NonNull String error, @NonNull Context context) {
+        if (mCaptureDeferred != null && mCaptureDeferred.isPending()) {
+            // Deferred rejection type is Void; error text lives in lastCaptureError for fail().
+            mCaptureDeferred.reject(null);
+        } else {
+            ViewUtils.showToast(mContext, error);
+        }
+    }
+
     private void dismissSettingsDialog() {
         if (mMenuOperationDialog != null) {
             mMenuOperationDialog.dismiss();
@@ -549,6 +578,7 @@ public class CircularMenu implements LayoutInspector.CaptureAvailableListener {
         }
         mRecorder.removeOnStateChangedListener(mRecorderStateListener);
         AutoJs.getInstance().getLayoutInspector().removeCaptureAvailableListener(this);
+        AutoJs.getInstance().getLayoutInspector().removeCaptureFailedListener(this);
         mGlobalKeyObserver.removeVolumeDownListener(mVolumeDownListener);
     }
 }

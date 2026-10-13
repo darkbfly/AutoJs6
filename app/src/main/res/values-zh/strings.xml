@@ -104,6 +104,7 @@
     <string name="description_server_mode">服务端模式用于让 AutoJs6 在当前设备开启服务并等待外部客户端连接, 以便进行 [ 脚本传输 / 打印日志 / 远程控制 ] 等.\n\nAutoJs6 服务端模式支持两种连接方式:\n1. 局域网 (LAN)\n2. 安卓调试桥 (ADB)</string>
     <string name="description_shizuku_access">通过 Shizuku 可以获得 ADB 特权并使用系统 API</string>
     <string name="description_stable_mode">稳定模式省略布局细节, 脚本分析布局时更稳定, 但可能影响获取的控件总量.\n需重启无障碍服务.</string>
+    <string name="description_layout_node_scheme">选择布局分析获取节点树的方式.\n\n默认方案使用 AutoJs6 自身无障碍服务.\n\n伪装插件方案使用独立 APK, 其无障碍服务类名后缀匹配常见白名单 (如微信). 请先安装插件, 在系统设置中手动开启其无障碍服务, 再在此选择该方案. 无高级权限时脚本无法静默开关系统无障碍服务.</string>
     <string name="description_theme_color_preference">主题色的应用范围包括但不限于以下部件:\n系统通知栏\n应用栏 (AppBar)\n文件图标\n任务项图标\n浮动操作按钮 (FAB)\n设置页面类别标题\n按钮开关\n\n注: 截至 6.2.0 版本, AutoJs6 主题色暂未对 [ 主要色 (Primary Color) / 主要暗色 (Primary Dark Color) / 强调色 (Accent Color) ] 作出区分.</string>
     <string name="description_timed_task_backend">控制脚本定时触发的底层机制.\n\nAlarmManager: 通过申请 \"允许设置闹钟和提醒\" 权限, 可使定时任务的触发更接近准时.\nWorkManager: 系统友好, 适合可接受一定延迟的非关键定时任务.\nJobScheduler: 旧实现, 仅用作兼容保留, 定时任务出现延迟的概率较大.</string>
     <string name="description_timed_task_backend_more" tools:ignore="TypographyEllipsis">使用场景与差异说明: \n\n1. AlarmManager\n适用于准时性敏感的定时任务, 如 [提醒/严格定时脚本/...].\n在 Android 12+ 设备上获取 \"允许设置闹钟和提醒\" 权限后, 在息屏或待机状态时能够较准时地执行定时任务.\n在未授予 \"允许设置闹钟和提醒\" 权限时, 系统可能降级为不准时或延后执行任务.\n\n2. WorkManager\n适用于不要求严格准时执行的定时任务, 如 [非关键性同步/清理/统计/...].\n根据系统 [ 电量/网络/充电情况/待机策略/... ] 进行调度, 息屏或待机状态时可能推迟任务执行.\n虽无法保证时间精确性, 但在 [ 可靠完成/失败重试/链式执行/唯一任务去重 ] 等方面拥有独特优势.\n\n3. Job\n历史实现, 为兼容保留.\n在高版本安卓系统中定时任务可能存在较大的延迟执行问题.\n除非出于兼容需要, 一般不推荐使用.</string>
@@ -302,6 +303,11 @@
     <string name="error_module_does_not_work_due_to_the_lack_of_necessary_library_files">由于缺少必要的库文件, 模块 \"%s\" 无法正常加载</string>
     <string name="error_no_accessibility_permission">无障碍服务未启用</string>
     <string name="error_no_accessibility_permission_to_capture">无障碍服务未启用</string>
+    <string name="error_layout_node_capture_empty">未能获取布局节点</string>
+    <string name="error_disguised_a11y_plugin_not_installed">未安装伪装无障碍插件</string>
+    <string name="error_disguised_a11y_plugin_capture_empty">伪装无障碍插件返回空节点树. 请在系统设置中启用该插件的无障碍服务.</string>
+    <string name="error_disguised_a11y_plugin_capture_failed">伪装无障碍插件布局捕获失败</string>
+    <string name="error_disguised_a11y_plugin_tree_too_large">伪装无障碍插件节点树过大, 无法通过 IPC 传输</string>
     <string name="error_no_accessibility_service">没有无障碍服务</string>
     <string name="error_no_applications_available_for_browsing_this_link">未找到用于浏览该链接的应用</string>
     <string name="error_no_applications_available_for_editing_this_file">未找到用于编辑该文件的应用</string>
@@ -465,6 +471,7 @@
     <string name="summary_release_history_preference">查看发行版本历史更新记录与统计数据</string>
     <string name="summary_rhino_java_primitive_wrap">Java 原始类型在脚本中将被包装为对应的 Java 对象</string>
     <string name="summary_stable_mode">增强布局分析稳定性但降低代码兼容性 (需重启无障碍服务)</string>
+    <string name="summary_layout_node_scheme">选择布局分析使用的节点获取方案</string>
     <string name="summary_text_launcher_shortcuts">添加快捷方式到启动器</string>
     <string name="summary_use_volume_control_record">按 \"音量减\" 键开始或停止脚本录制 (需开启浮动按钮)</string>
     <string name="summary_use_volume_key_to_stop_running_scripts">按 \"音量加\" 键停止所有正在运行的脚本</string>
@@ -1310,6 +1317,9 @@
     <string name="text_source_processing_completed">源代码处理完成</string>
     <string name="text_special_permissions">特殊权限</string>
     <string name="text_stable_mode">稳定模式</string>
+    <string name="text_layout_node_scheme">布局节点方案</string>
+    <string name="entry_layout_node_scheme_builtin">默认 (AutoJs6)</string>
+    <string name="entry_layout_node_scheme_disguised_plugin">伪装插件 (SelectToSpeak)</string>
     <string name="text_star">收藏</string>
     <string name="text_start_record">开始录制</string>
     <string name="text_start_running">开始运行</string>

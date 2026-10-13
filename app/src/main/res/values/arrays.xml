@@ -22,6 +22,16 @@
         <item>@string/entry_timed_task_backend_job</item>
     </string-array>
 
+    <string-array name="keys_layout_node_scheme">
+        <item>@string/key_layout_node_scheme_builtin</item>
+        <item>@string/key_layout_node_scheme_disguised_plugin</item>
+    </string-array>
+
+    <string-array name="values_layout_node_scheme">
+        <item>@string/entry_layout_node_scheme_builtin</item>
+        <item>@string/entry_layout_node_scheme_disguised_plugin</item>
+    </string-array>
+
     <string-array name="keys_documentation_source">
         <item>@string/key_documentation_source_local</item>
         <item>@string/key_documentation_source_online</item>

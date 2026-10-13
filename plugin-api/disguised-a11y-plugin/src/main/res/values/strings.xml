@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AutoJs6 Disguised A11y</string>
+    <string name="a11y_service_description">Provides disguised accessibility node capture for AutoJs6 layout analysis (e.g. WeChat whitelist).</string>
+    <string name="main_hint">Enable this app\'s Accessibility Service in system settings, then select \"Disguised plugin\" in AutoJs6 settings.</string>
+    <string name="plugin_description">Disguised accessibility plugin for AutoJs6 layout analysis</string>
+</resources>

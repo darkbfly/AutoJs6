@@ -262,6 +262,9 @@ dependencies /* Unclassified */ {
 
     // Plugin API: Paddle OCR Engine
     implementation(project(":plugin-api:paddle-ocr-engine"))
+
+    // Plugin API: Disguised accessibility (layout node scheme)
+    implementation(project(":plugin-api:disguised-a11y-api"))
 }
 
 dependencies /* MIME */ {

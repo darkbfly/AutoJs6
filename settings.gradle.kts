@@ -43,6 +43,8 @@ private val libs = listOf(
 private val pluginApi = listOf(
     "paddle-ocr-api",
     "paddle-ocr-engine",
+    "disguised-a11y-api",
+    "disguised-a11y-plugin",
 )
 
 include(

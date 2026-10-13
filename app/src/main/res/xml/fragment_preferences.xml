@@ -158,6 +158,15 @@
             app:title="@string/text_stable_mode"
             app:summary="@string/summary_stable_mode" />
 
+        <org.autojs.autojs.theme.preference.MaterialListPreference
+            app:layout="@layout/preference_custom"
+            app:key="@string/key_layout_node_scheme"
+            app:title="@string/text_layout_node_scheme"
+            app:itemKeys="@array/keys_layout_node_scheme"
+            app:itemValues="@array/values_layout_node_scheme"
+            app:itemDefaultKey="@string/default_key_layout_node_scheme"
+            app:longClickPrompt="@string/description_layout_node_scheme" />
+
     </org.autojs.autojs.theme.preference.ThemeColorPreferenceCategory>
 
     <org.autojs.autojs.theme.preference.ThemeColorPreferenceCategory

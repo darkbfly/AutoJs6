@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.onEach
 import org.autojs.autojs.core.accessibility.AccessibilityTool
 import org.autojs.autojs.core.accessibility.Capture
 import org.autojs.autojs.core.accessibility.LayoutInspector.CaptureAvailableListener
+import org.autojs.autojs.core.accessibility.LayoutInspector.CaptureFailedListener
 import org.autojs.autojs.core.console.GlobalConsole
+import org.autojs.autojs.core.pref.Pref
 import org.autojs.autojs.execution.ScriptExecutionGlobalListener
 import org.autojs.autojs.external.fileprovider.AppFileProvider
 import org.autojs.autojs.ipc.LayoutInspectEvent
@@ -27,6 +29,7 @@ import org.autojs.autojs.ui.floating.FullScreenFloatyWindow
 import org.autojs.autojs.ui.floating.layoutinspector.LayoutBoundsFloatyWindow
 import org.autojs.autojs.ui.floating.layoutinspector.LayoutHierarchyFloatyWindow
 import org.autojs.autojs.util.RhinoUtils.isBackgroundThread
+import org.autojs.autojs.util.ViewUtils
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -86,13 +89,17 @@ open class AutoJs(appContext: Application) : AbstractAutoJs(appContext) {
             try {
                 when (event) {
                     LayoutInspectEvent.ShowLayoutBounds -> {
-                        mA11yTool.ensureService()
+                        if (!Pref.isLayoutNodeSchemeDisguisedPlugin) {
+                            mA11yTool.ensureService()
+                        }
                         capture(object : LayoutInspectFloatyWindow {
                             override fun create(capture: Capture) = LayoutBoundsFloatyWindow(capture, appContext, true)
                         })
                     }
                     LayoutInspectEvent.ShowLayoutHierarchy -> {
-                        mA11yTool.ensureService()
+                        if (!Pref.isLayoutNodeSchemeDisguisedPlugin) {
+                            mA11yTool.ensureService()
+                        }
                         capture(object : LayoutInspectFloatyWindow {
                             override fun create(capture: Capture) = LayoutHierarchyFloatyWindow(capture, appContext, true)
                         })
@@ -112,15 +119,26 @@ open class AutoJs(appContext: Application) : AbstractAutoJs(appContext) {
 
     private fun capture(window: LayoutInspectFloatyWindow) {
         val inspector = layoutInspector
-        val listener: CaptureAvailableListener = object : CaptureAvailableListener {
+        lateinit var available: CaptureAvailableListener
+        lateinit var failed: CaptureFailedListener
+        available = object : CaptureAvailableListener {
             override fun onCaptureAvailable(capture: Capture, context: Context) {
-                inspector.removeCaptureAvailableListener(this)
+                inspector.removeCaptureAvailableListener(available)
+                inspector.removeCaptureFailedListener(failed)
                 uiHandler.post { FloatyWindowManger.addWindow(context, window.create(capture)) }
             }
         }
-        inspector.addCaptureAvailableListener(listener)
+        failed = object : CaptureFailedListener {
+            override fun onCaptureFailed(error: String, context: Context) {
+                inspector.removeCaptureAvailableListener(available)
+                inspector.removeCaptureFailedListener(failed)
+                uiHandler.post { ViewUtils.showToast(context, error) }
+            }
+        }
+        inspector.addCaptureAvailableListener(available)
+        inspector.addCaptureFailedListener(failed)
         if (!inspector.captureCurrentWindow()) {
-            inspector.removeCaptureAvailableListener(listener)
+            // Sync failure already notified CaptureFailedListener (toast + cleanup).
         }
     }
 

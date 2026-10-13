@@ -13,6 +13,7 @@ import org.autojs.autojs.App.Companion.app
 import org.autojs.autojs.annotation.KeyRes
 import org.autojs.autojs.annotation.ScriptInterfaceCompatible
 import org.autojs.autojs.app.GlobalAppContext
+import org.autojs.autojs.core.accessibility.LayoutNodeScheme
 import org.autojs.autojs.util.NetworkUtils
 import org.autojs.autojs.util.RootUtils
 import org.autojs.autojs.util.StringUtils.key
@@ -156,6 +157,21 @@ object Pref {
             R.string.key_stable_mode,
             resources.getBoolean(R.bool.pref_stable_mode)
         )
+
+    val layoutNodeScheme: LayoutNodeScheme
+        get() {
+            val stored = getString(
+                R.string.key_layout_node_scheme,
+                key(R.string.default_key_layout_node_scheme),
+            )
+            return when (stored) {
+                key(R.string.key_layout_node_scheme_disguised_plugin) -> LayoutNodeScheme.DISGUISED_PLUGIN
+                else -> LayoutNodeScheme.BUILTIN
+            }
+        }
+
+    val isLayoutNodeSchemeDisguisedPlugin: Boolean
+        get() = layoutNodeScheme == LayoutNodeScheme.DISGUISED_PLUGIN
 
     val isGestureObservingEnabled
         get() = getBoolean(

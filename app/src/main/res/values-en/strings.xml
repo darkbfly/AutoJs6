@@ -105,6 +105,7 @@
     <string name="description_server_mode">Server mode allows AutoJs6 to start a service on the current device and wait for external client connections for [ script transfer / log printing / remote control ].\n\nAutoJs6 server mode supports two connection methods:\n1. LAN\n2. Android Debug Bridge (ADB)</string>
     <string name="description_shizuku_access">Shizuku makes it possible to uses system API with ADB privileges</string>
     <string name="description_stable_mode">Stable mode makes it more stable when getting layout bounds, but some results may be ignored.\nA11y service\'s restart required.</string>
+    <string name="description_layout_node_scheme">Select how layout analysis obtains the node tree.\n\nDefault uses AutoJs6 Accessibility Service.\n\nDisguised plugin uses a separate APK whose service class name matches common whitelist suffixes (e.g. WeChat). Install the plugin, enable its Accessibility Service in system settings, then select this scheme. Scripts cannot toggle system accessibility services without elevated privileges.</string>
     <string name="description_theme_color_preference">Theme color is applied to widgets including but not limited to the following ones:\nStatus bar\nAppbar\nFile icon\nTask item icon\nFAB\nSettings category title\nSwitch button\n\nNote: As of AutoJs6 version 6.2.0, there has been no difference between primary color, primary dark color and accent color yet.</string>
     <string name="description_timed_task_backend">Controls the underlying mechanism for triggering scripts on a schedule.\n\nAlarmManager: With the \"Allow setting alarms and reminders\" permission granted, scheduled tasks can fire closer to the exact time.\nWorkManager: System-friendly; suitable for non-critical tasks that can tolerate some delay.\nJobScheduler: Legacy implementation kept for compatibility; higher chance of delays.</string>
     <string name="description_timed_task_backend_more" tools:ignore="TypographyEllipsis">Use cases and differences:\n\n1. AlarmManager\nBest for time-sensitive tasks, e.g., [reminders/strictly scheduled scripts/...].\nOn Android 12+ with the \"Allow setting alarms and reminders\" permission, tasks can run more on time even when the screen is off or the device is idle.\nWithout it, the system may degrade exactness or delay execution.\n\n2. WorkManager\nBest for tasks that don’t require strict timing, e.g., [non-critical sync/cleanup/statistics/...].\nScheduling depends on [battery/network/charging/idle policies/...], so execution may be postponed when the screen is off or idle.\nWhile it can’t guarantee exact timing, it excels at [reliable completion/retries/chaining/unique work de-duplication].\n\n3. JobScheduler\nHistorical implementation for compatibility.\nOn newer Android versions, tasks may be delayed more noticeably.\nGenerally not recommended unless required for compatibility.</string>
@@ -303,6 +304,11 @@
     <string name="error_module_does_not_work_due_to_the_lack_of_necessary_library_files">The \"%s\" module does not work due to the lack of necessary library files</string>
     <string name="error_no_accessibility_permission">Accessibility service is disabled and the script has stopped</string>
     <string name="error_no_accessibility_permission_to_capture">Accessibility service is not activated</string>
+    <string name="error_layout_node_capture_empty">Failed to capture layout nodes</string>
+    <string name="error_disguised_a11y_plugin_not_installed">Disguised a11y plugin is not installed</string>
+    <string name="error_disguised_a11y_plugin_capture_empty">Disguised a11y plugin returned an empty node tree. Enable its Accessibility Service in system settings.</string>
+    <string name="error_disguised_a11y_plugin_capture_failed">Disguised a11y plugin capture failed</string>
+    <string name="error_disguised_a11y_plugin_tree_too_large">Disguised a11y plugin node tree is too large to transfer</string>
     <string name="error_no_accessibility_service">No accessibility service</string>
     <string name="error_no_applications_available_for_browsing_this_link">No applications available for browsing this link</string>
     <string name="error_no_applications_available_for_editing_this_file">No applications available for editing this file</string>
@@ -466,6 +472,7 @@
     <string name="summary_release_history_preference">View release history and statistics</string>
     <string name="summary_rhino_java_primitive_wrap">Java primitive types will be wrapped as Java objects in scripts</string>
     <string name="summary_stable_mode">More stable layout analysis but worse code compatibility (a11y service restarting needed)</string>
+    <string name="summary_layout_node_scheme">Choose which accessibility service provides nodes for layout analysis</string>
     <string name="summary_text_launcher_shortcuts">Add shortcuts to launcher</string>
     <string name="summary_use_volume_control_record">Start or stop recording controlled by \"Volume Down\" key when floating button is showing</string>
     <string name="summary_use_volume_key_to_stop_running_scripts">Press \"Volume Up\" key to stop all running scripts</string>
@@ -1310,6 +1317,9 @@
     <string name="text_source_processing_completed">Source processing completed</string>
     <string name="text_special_permissions">Special permissions</string>
     <string name="text_stable_mode">Stable mode</string>
+    <string name="text_layout_node_scheme">Layout node scheme</string>
+    <string name="entry_layout_node_scheme_builtin">Default (AutoJs6)</string>
+    <string name="entry_layout_node_scheme_disguised_plugin">Disguised plugin (SelectToSpeak)</string>
     <string name="text_star">Star</string>
     <string name="text_start_record">Start recording</string>
     <string name="text_start_running">Running</string>

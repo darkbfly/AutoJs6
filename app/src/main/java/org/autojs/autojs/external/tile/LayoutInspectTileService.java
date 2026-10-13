@@ -13,13 +13,16 @@ import org.autojs.autojs.app.GlobalAppContext;
 import org.autojs.autojs.core.accessibility.AccessibilityTool;
 import org.autojs.autojs.core.accessibility.Capture;
 import org.autojs.autojs.core.accessibility.LayoutInspector;
+import org.autojs.autojs.core.pref.Pref;
 import org.autojs.autojs.ui.floating.FloatyWindowManger;
 import org.autojs.autojs.ui.floating.FullScreenFloatyWindow;
 import org.autojs.autojs.util.ViewUtils;
 import org.autojs.autojs6.R;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class LayoutInspectTileService extends TileService implements LayoutInspector.CaptureAvailableListener {
+public abstract class LayoutInspectTileService extends TileService implements
+        LayoutInspector.CaptureAvailableListener,
+        LayoutInspector.CaptureFailedListener {
 
     private boolean mCapturing = false;
 
@@ -30,6 +33,7 @@ public abstract class LayoutInspectTileService extends TileService implements La
         super.onCreate();
         Log.d(getClass().getName(), "onCreate");
         AutoJs.getInstance().getLayoutInspector().addCaptureAvailableListener(this);
+        AutoJs.getInstance().getLayoutInspector().addCaptureFailedListener(this);
         activeTile();
     }
 
@@ -45,6 +49,7 @@ public abstract class LayoutInspectTileService extends TileService implements La
         super.onDestroy();
         Log.d(getClass().getName(), "onDestroy");
         AutoJs.getInstance().getLayoutInspector().removeCaptureAvailableListener(this);
+        AutoJs.getInstance().getLayoutInspector().removeCaptureFailedListener(this);
     }
 
     @Override
@@ -75,7 +80,8 @@ public abstract class LayoutInspectTileService extends TileService implements La
             /* Ignored. */
         }
 
-        if (mA11yTool.isRunning()) {
+        boolean useDisguisedPlugin = Pref.INSTANCE.isLayoutNodeSchemeDisguisedPlugin();
+        if (useDisguisedPlugin || mA11yTool.isRunning()) {
             mCapturing = true;
             captureCurrentWindowDelayed();
         } else {
@@ -136,6 +142,19 @@ public abstract class LayoutInspectTileService extends TileService implements La
             if (!FloatyWindowManger.addWindow(context, window)) {
                 updateTile();
             }
+        });
+    }
+
+    @Override
+    public void onCaptureFailed(@NonNull String error, @NonNull Context context) {
+        Log.d(getClass().getName(), "onCaptureFailed: capturing = " + mCapturing + ", error = " + error);
+        if (!mCapturing) {
+            return;
+        }
+        mCapturing = false;
+        GlobalAppContext.post(() -> {
+            ViewUtils.showToast(context, error);
+            updateTile();
         });
     }
 

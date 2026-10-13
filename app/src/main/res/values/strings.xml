@@ -173,6 +173,10 @@
     <string name="key_server_address" translatable="false">key_$_server_address</string>
     <string name="key_server_socket_normally_closed" translatable="false">key_$_server_socket_normally_closed</string>
     <string name="key_stable_mode" translatable="false">key_$_stable_mode</string>
+    <string name="key_layout_node_scheme" translatable="false">key_$_layout_node_scheme</string>
+    <string name="key_layout_node_scheme_builtin" translatable="false">key_$_layout_node_scheme_builtin</string>
+    <string name="key_layout_node_scheme_disguised_plugin" translatable="false">key_$_layout_node_scheme_disguised_plugin</string>
+    <string name="default_key_layout_node_scheme" translatable="false">@string/key_layout_node_scheme_builtin</string>
     <string name="key_theme_color" translatable="false">key_$_theme_color</string>
     <string name="key_theme_color_accent" translatable="false">key_$_theme_color_accent</string>
     <string name="key_theme_color_primary" translatable="false">key_$_theme_color_primary</string>
@@ -580,6 +584,11 @@
     <string name="error_module_does_not_work_due_to_the_lack_of_necessary_library_files">The \"%s\" module does not work due to the lack of necessary library files</string>
     <string name="error_no_accessibility_permission">Accessibility service is disabled and the script has stopped</string>
     <string name="error_no_accessibility_permission_to_capture">Accessibility service is not activated</string>
+    <string name="error_layout_node_capture_empty">Failed to capture layout nodes</string>
+    <string name="error_disguised_a11y_plugin_not_installed">Disguised a11y plugin is not installed</string>
+    <string name="error_disguised_a11y_plugin_capture_empty">Disguised a11y plugin returned an empty node tree. Enable its Accessibility Service in system settings.</string>
+    <string name="error_disguised_a11y_plugin_capture_failed">Disguised a11y plugin capture failed</string>
+    <string name="error_disguised_a11y_plugin_tree_too_large">Disguised a11y plugin node tree is too large to transfer</string>
     <string name="error_no_accessibility_service">No accessibility service</string>
     <string name="error_no_applications_available_for_browsing_this_link">No applications available for browsing this link</string>
     <string name="error_no_applications_available_for_editing_this_file">No applications available for editing this file</string>
@@ -743,6 +752,7 @@
     <string name="summary_release_history_preference">View release history and statistics</string>
     <string name="summary_rhino_java_primitive_wrap">Java primitive types will be wrapped as Java objects in scripts</string>
     <string name="summary_stable_mode">More stable layout analysis but worse code compatibility (a11y service restarting needed)</string>
+    <string name="summary_layout_node_scheme">Choose which accessibility service provides nodes for layout analysis</string>
     <string name="summary_text_launcher_shortcuts">Add shortcuts to launcher</string>
     <string name="summary_use_volume_control_record">Start or stop recording controlled by \"Volume Down\" key when floating button is showing</string>
     <string name="summary_use_volume_key_to_stop_running_scripts">Press \"Volume Up\" key to stop all running scripts</string>
@@ -1588,6 +1598,10 @@
     <string name="text_source_processing_completed">Source processing completed</string>
     <string name="text_special_permissions">Special permissions</string>
     <string name="text_stable_mode">Stable mode</string>
+    <string name="text_layout_node_scheme">Layout node scheme</string>
+    <string name="entry_layout_node_scheme_builtin">Default (AutoJs6)</string>
+    <string name="entry_layout_node_scheme_disguised_plugin">Disguised plugin (SelectToSpeak)</string>
+    <string name="description_layout_node_scheme">Select how layout analysis obtains the node tree.\n\nDefault uses AutoJs6 Accessibility Service.\n\nDisguised plugin uses a separate APK whose service class name matches common whitelist suffixes (e.g. WeChat). Install the plugin, enable its Accessibility Service in system settings, then select this scheme. Scripts cannot toggle system accessibility services without elevated privileges.</string>
     <string name="text_star">Star</string>
     <string name="text_start_record">Start recording</string>
     <string name="text_start_running">Running</string>
