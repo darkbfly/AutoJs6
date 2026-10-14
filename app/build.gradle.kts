@@ -41,6 +41,7 @@ val isInrtAssembleTaskRequested = taskNames.any { it.contains(Regex("^(:?$flavor
 val isInrtTaskRequested = taskNames.any { it.contains(flavorNameInrt, true) }
 
 utils.registerTemplateApkCopy(project)
+utils.registerApkCopyToRootRelease(project)
 
 dependencies /* Unclassified */ {
     // Compose

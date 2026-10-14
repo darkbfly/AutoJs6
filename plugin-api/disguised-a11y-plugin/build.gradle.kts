@@ -1,10 +1,13 @@
 plugins {
+    id("org.autojs.build.utils")
     id("org.autojs.build.versions")
     id("org.autojs.build.signs")
     id("org.autojs.build.jvm-convention")
     id("com.android.application")
     kotlin("plugin.parcelize")
 }
+
+utils.registerApkCopyToRootRelease(project)
 
 android {
     namespace = "org.autojs.plugin.disguised.a11y"
@@ -14,8 +17,8 @@ android {
         applicationId = "org.autojs.plugin.disguised.a11y"
         minSdk = versions.sdkVersionMin
         targetSdk = versions.sdkVersionTarget
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
     }
 
     lint {

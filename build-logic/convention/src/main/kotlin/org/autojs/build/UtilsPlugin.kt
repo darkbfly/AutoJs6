@@ -30,6 +30,7 @@ import org.gradle.api.Project
  * utils.compareVersionStrings("6.3.2 beta", "6.3.2 alpha4) > 0
  *
  * utils.registerTemplateApkCopy(project)
+ * utils.registerApkCopyToRootRelease(project)
  * ```
  */
 class UtilsPlugin : Plugin<Project> {

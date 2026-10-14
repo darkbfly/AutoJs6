@@ -5,6 +5,8 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.CopySpec
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.RelativePath
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
@@ -141,22 +143,89 @@ object Utils {
     }
 
     /**
+     * After any assemble* task finishes, copy produced APKs under build/outputs/apk
+     * into the repository root `release/` directory (flattened).
+     *
+     * zh-CN: 任意 assemble* 任务完成后, 将 build/outputs/apk 下产出的 APK
+     * 平铺拷贝到仓库根目录 `release/`.
+     */
+    @JvmOverloads
+    fun registerApkCopyToRootRelease(
+        project: Project,
+        releaseDirName: String = "release",
+    ) {
+        project.gradle.projectsEvaluated {
+            val releaseDir = File(project.rootProject.projectDir, releaseDirName)
+            project.tasks.matching { task ->
+                val name = task.name
+                name.startsWith("assemble") &&
+                    name != "assemble" &&
+                    !name.contains("UnitTest", ignoreCase = true) &&
+                    !name.contains("AndroidTest", ignoreCase = true)
+            }.configureEach {
+                doLast {
+                    val outputsRoot = project.layout.buildDirectory.get().asFile.resolve("outputs/apk")
+                    if (!outputsRoot.isDirectory) {
+                        return@doLast
+                    }
+                    // Only copy this assemble variant (e.g. assembleAppRelease -> app/release),
+                    // otherwise debug/release APKs share the same file name and collide when flattened.
+                    // zh-CN: 只拷贝当前 assemble 变体目录, 避免 debug/release 同名 APK 平铺冲突.
+                    val apkRoot = resolveAssembleApkOutputDir(outputsRoot, name) ?: outputsRoot
+                    if (!apkRoot.isDirectory) {
+                        return@doLast
+                    }
+                    val apkFiles = apkRoot.walkTopDown()
+                        .filter { it.isFile && it.extension.equals(FILE_EXTENSION_APK, ignoreCase = true) }
+                        .toList()
+                    if (apkFiles.isEmpty()) {
+                        return@doLast
+                    }
+                    releaseDir.mkdirs()
+                    @Suppress("ObjectLiteralToLambda")
+                    project.copy(object : Action<CopySpec> {
+                        override fun execute(spec: CopySpec) {
+                            spec.duplicatesStrategy = DuplicatesStrategy.INCLUDE
+                            spec.from(apkRoot) {
+                                include("**/*.$FILE_EXTENSION_APK")
+                                eachFile {
+                                    relativePath = RelativePath(true, name)
+                                }
+                                includeEmptyDirs = false
+                            }
+                            spec.into(releaseDir)
+                        }
+                    })
+                    newFormatted(
+                        "Copy APKs to root release/",
+                        listOf(
+                            "Module: ${project.path}",
+                            "Source: $apkRoot",
+                            "Destination: $releaseDir",
+                            "Files: ${apkFiles.joinToString { it.name }}",
+                        ),
+                    ).print()
+                }
+            }
+        }
+    }
+
+    /**
+     * Map assemble task name to AGP apk output subdir.
+     * Examples: assembleAppRelease -> app/release, assembleDebug -> debug.
+     */
+    private fun resolveAssembleApkOutputDir(outputsRoot: File, assembleTaskName: String): File? {
+        val match = Regex("^assemble(?:(.+?))?(Debug|Release)$").find(assembleTaskName) ?: return null
+        val flavor = match.groupValues[1].takeIf { it.isNotEmpty() }?.replaceFirstChar { it.lowercase() }
+        val buildType = match.groupValues[2].lowercase()
+        val relative = if (flavor.isNullOrEmpty()) buildType else "$flavor/$buildType"
+        return outputsRoot.resolve(relative)
+    }
+
+    /**
      * Register template APK copying: After the specified assemble task is completed, copy universal APK as assets template.
      *
      * zh-CN: 注册模板 APK 拷贝: 在指定 assemble 任务完成后, 将 universal APK 拷贝为 assets 模板.
-     *
-     * @param project Current module Project.<br>
-     *                zh-CN: 当前模块 Project.
-     * @param taskName Build task name (like "assembleInrtRelease").<br>
-     *                 zh-CN: 构建任务名 (如 "assembleInrtRelease").
-     * @param srcDir APK output directory (like "build/outputs/apk/inrt/release").<br>
-     *               zh-CN: APK 输出目录 (如 "build/outputs/apk/inrt/release").
-     * @param destDir Target directory (like "src/main/assets-app").<br>
-     *                zh-CN: 目标目录 (如 "src/main/assets-app").
-     * @param templateApkName Template file name (like "template.apk").<br>
-     *                        zh-CN: 模板文件名 (如 "template.apk").
-     * @param universalNameFn Function to derive source APK name from version name (default inrt-v<ver>-universal.apk).<br>
-     *                        zh-CN: 从版本名得出源 APK 名的函数 (默认 inrt-v<ver>-universal.apk).
      */
     @JvmOverloads
     fun registerTemplateApkCopy(
